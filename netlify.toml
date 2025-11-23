@@ -1,0 +1,8 @@
+[build]
+  publish = "dist"
+  functions = "netlify/functions"
+
+[[redirects]]
+  from = "/api/mailrelay/subscribe"
+  to = "/.netlify/functions/subscribe"
+  status = 200
