@@ -46,7 +46,7 @@ const CheckoutPage = () => {
 
   useEffect(() => {
     if (!product) {
-      navigate("/espalda-indestructible");
+      navigate("/tienda");
       return;
     }
 
@@ -132,10 +132,6 @@ const CheckoutPage = () => {
 
       <Footer />
     </div>
-  );
-};
-
-export default CheckoutPage;
   );
 };
 
