@@ -266,10 +266,10 @@ app.post("/api/create-payment-intent", async (req, res) => {
 
 // Custom coupons configuration (fixed discounts with minimum purchase requirements)
 const CUSTOM_COUPONS = {
-  "K47NA": { discount: 47, minAmount: 900 },
+  K47NA: { discount: 47, minAmount: 900 },
   "50K50": { discount: 50, minAmount: 900 },
-  "K102NA": { discount: 102, minAmount: 1600 },
-  "K202NA": { discount: 202, minAmount: 1600 },
+  K102NA: { discount: 102, minAmount: 1600 },
+  K202NA: { discount: 202, minAmount: 1600 },
 };
 
 // Apply Coupon
@@ -407,7 +407,28 @@ app.post("/api/apply-coupon", async (req, res) => {
 // Payment success notification
 app.post("/api/payment-success", async (req, res) => {
   try {
-    const { paymentIntentId, productSlug, customerEmail, nombre } = req.body;
+    const {
+      paymentIntentId,
+      productSlug,
+
+      // 👇 NUEVO: recibimos todo el formulario (si viene)
+      firstName,
+      lastName,
+      companyName,
+      country,
+      streetAddress,
+      apartment,
+      city,
+      province,
+      postalCode,
+      phone,
+      email,
+      notes,
+
+      // (mantengo compatibilidad con lo anterior)
+      customerEmail,
+      nombre,
+    } = req.body;
 
     if (!paymentIntentId) {
       return res.status(400).json({ success: false, error: "paymentIntentId is required" });
@@ -432,6 +453,55 @@ app.post("/api/payment-success", async (req, res) => {
       "1-ano": "1 año",
     };
 
+    // 👇 NUEVO: preparar valores “finales” para mandar a n8n
+    const finalEmail = email || customerEmail || null;
+    const finalNombre =
+      (firstName || lastName)
+        ? `${firstName || ""} ${lastName || ""}`.trim()
+        : (nombre || null);
+
+    // 🔁 NUEVO: enviar TODO el formulario a n8n (sin romper el flujo si n8n falla)
+    try {
+      await fetch("https://n8n.espaldaindestructible.com/webhook/pagos-web-backend", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Source": "espalda-backend",
+        },
+        body: JSON.stringify({
+          paymentIntentId,
+          producto: productName,
+          duracion: productLabels[productSlug] || productSlug,
+          productSlug,
+          importePagado: amountPaid,
+          moneda: currency,
+          cuponAplicado: appliedCoupon,
+          fecha: new Date().toISOString(),
+
+          // ✅ Formulario completo (tal cual lo rellena el usuario)
+          formulario: {
+            firstName: firstName || null,
+            lastName: lastName || null,
+            nombreCompleto: finalNombre,
+            companyName: companyName || null,
+            country: country || null,
+            streetAddress: streetAddress || null,
+            apartment: apartment || null,
+            city: city || null,
+            province: province || null,
+            postalCode: postalCode || null,
+            phone: phone || null,
+            email: finalEmail,
+            notes: notes || null,
+          },
+        }),
+      });
+    } catch (err) {
+      console.error("Error sending data to n8n:", err);
+      // no bloqueamos: el pago ya fue correcto
+    }
+
+    // 📧 EMAIL (SE QUEDA COMO ESTABA)
     const subject = "🎉 Nueva compra ESPALDA INDESTRUCTIBLE";
 
     const text = `
@@ -446,6 +516,8 @@ Detalles del pedido:
 Datos del cliente:
 - Nombre: ${nombre || "No proporcionado"}
 - Email: ${customerEmail || "No proporcionado"}
+- Teléfono: ${phone || "No proporcionado"}
+
 
 Payment Intent ID: ${paymentIntentId}
 
