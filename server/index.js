@@ -514,8 +514,8 @@ Detalles del pedido:
 - Cupón aplicado: ${appliedCoupon}
 
 Datos del cliente:
-- Nombre: ${nombre || "No proporcionado"}
-- Email: ${customerEmail || "No proporcionado"}
+- Nombre: ${finalNombre || "No proporcionado"}
+- Email: ${finalEmail || "No proporcionado"}
 - Teléfono: ${phone || "No proporcionado"}
 
 
@@ -531,20 +531,22 @@ Fecha: ${new Date().toLocaleString("es-ES", { timeZone: "Europe/Madrid" })}
 <head>
   <meta charset="utf-8">
   <style>
-    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; }
     .container { max-width: 600px; margin: 0 auto; padding: 20px; }
     .header { background: linear-gradient(135deg, #10b981, #059669); color: #fff; padding: 30px 20px; text-align: center; border-radius: 8px 8px 0 0; }
     .header h2 { margin: 0; font-size: 24px; }
     .content { background: #f9f9f9; padding: 25px; border-radius: 0 0 8px 8px; }
     .section { margin-bottom: 20px; }
     .section-title { font-weight: bold; color: #059669; margin-bottom: 10px; font-size: 16px; }
-    .field { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #e5e5e5; }
+    .field { display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-bottom: 1px solid #e5e5e5; }
     .field:last-child { border-bottom: none; }
-    .label { color: #666; }
-    .value { font-weight: 600; color: #333; }
+    .label { color: #666; flex: 1; }
+    .value { font-weight: 600; color: #333; text-align: right; flex: 1; word-break: break-word; }
     .amount { font-size: 24px; color: #059669; font-weight: bold; text-align: center; padding: 20px; background: #ecfdf5; border-radius: 8px; margin-bottom: 20px; }
     .footer { margin-top: 20px; font-size: 12px; color: #888; text-align: center; }
     .payment-id { font-family: monospace; font-size: 11px; color: #999; word-break: break-all; }
+    a { color: #059669; text-decoration: none; }
+    a:hover { text-decoration: underline; }
   </style>
 </head>
 <body>
@@ -553,9 +555,10 @@ Fecha: ${new Date().toLocaleString("es-ES", { timeZone: "Europe/Madrid" })}
       <h2>🎉 ¡Nueva Compra!</h2>
       <p style="margin: 5px 0 0 0; opacity: 0.9;">ESPALDA INDESTRUCTIBLE</p>
     </div>
+
     <div class="content">
       <div class="amount">${amountPaid} ${currency}</div>
-      
+
       <div class="section">
         <div class="section-title">📦 Producto</div>
         <div class="field">
@@ -571,19 +574,30 @@ Fecha: ${new Date().toLocaleString("es-ES", { timeZone: "Europe/Madrid" })}
           <span class="value">${appliedCoupon}</span>
         </div>
       </div>
-      
+
       <div class="section">
         <div class="section-title">👤 Cliente</div>
         <div class="field">
           <span class="label">Nombre:</span>
-          <span class="value">${nombre || "No proporcionado"}</span>
+          <span class="value">${finalNombre || "No proporcionado"}</span>
         </div>
         <div class="field">
           <span class="label">Email:</span>
-          <span class="value">${customerEmail ? `<a href="mailto:${customerEmail}">${customerEmail}</a>` : "No proporcionado"}</span>
+          <span class="value">
+            ${
+              finalEmail
+                ? `<a href="mailto:${finalEmail}">${finalEmail}</a>`
+                : "No proporcionado"
+            }
+          </span>
+        </div>
+        <div class="field">
+          <span class="label">Teléfono:</span>
+          <span class="value">${phone || "No proporcionado"}</span>
         </div>
       </div>
     </div>
+
     <div class="footer">
       <p class="payment-id">Payment Intent: ${paymentIntentId}</p>
       <p>Fecha: ${new Date().toLocaleString("es-ES", { timeZone: "Europe/Madrid" })}</p>
@@ -591,7 +605,7 @@ Fecha: ${new Date().toLocaleString("es-ES", { timeZone: "Europe/Madrid" })}
   </div>
 </body>
 </html>
-    `.trim();
+`.trim();
 
     // Send email notification
     await sendNotificationEmail(subject, text, html);
