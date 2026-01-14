@@ -43,7 +43,17 @@ const ContactForm = () => {
         throw new Error("reCAPTCHA site key not configured");
       }
 
-      const token = await window.grecaptcha.execute(siteKey, { action: "contact" });
+      const token = await new Promise<string>((resolve, reject) => {
+        window.grecaptcha.ready(async () => {
+          try {
+            const t = await window.grecaptcha.execute(siteKey, { action: "contact" });
+            resolve(t);
+          } catch (e) {
+            reject(e);
+          }
+        });
+      });
+
 
       const response = await fetch(`${import.meta.env.VITE_API_URL}/api/contact`, {
         method: "POST",
