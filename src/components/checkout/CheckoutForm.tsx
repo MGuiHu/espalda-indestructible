@@ -80,26 +80,28 @@ const CheckoutForm = ({ paymentIntentId, productSlug }: CheckoutFormProps) => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          paymentIntentId,
-          productSlug,
-
-           // datos cliente
-          nombre: `${formData.firstName} ${formData.lastName}`.trim(),
-          email: formData.email,
-          telefono: formData.phone,
-          empresa: formData.companyName || null,
-        
-          // dirección
-          pais: formData.country,
-          direccion: formData.streetAddress,
-          apartamento: formData.apartment || null,
-          ciudad: formData.city,
-          provincia: formData.province,
-          codigoPostal: formData.postalCode,
-        
-          // otros
-          notas: formData.notes || null,
-        }),
+          body: JSON.stringify({
+            paymentIntentId,
+            productSlug,
+          
+            // ✅ datos cliente (como los espera el backend nuevo)
+            firstName: formData.firstName,
+            lastName: formData.lastName,
+            email: formData.email,
+            phone: formData.phone,
+            companyName: formData.companyName || null,
+          
+            // ✅ dirección (como los espera el backend nuevo)
+            country: formData.country,
+            streetAddress: formData.streetAddress,
+            apartment: formData.apartment || null,
+            city: formData.city,
+            province: formData.province,
+            postalCode: formData.postalCode,
+          
+            // ✅ otros
+            notes: formData.notes || null,
+          }),
       });
     } catch (error) {
       console.error("Error notifying payment success:", error);
