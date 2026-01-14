@@ -73,7 +73,7 @@ const CheckoutForm = ({ paymentIntentId, productSlug }: CheckoutFormProps) => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const notifyPaymentSuccess = async () => {
+  const notifyPaymentSuccess = async (piId: string) => {
     try {
       const API_URL = import.meta.env.VITE_API_URL;
       await fetch(`${API_URL}/api/payment-success`, {
@@ -81,7 +81,7 @@ const CheckoutForm = ({ paymentIntentId, productSlug }: CheckoutFormProps) => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           body: JSON.stringify({
-            paymentIntentId,
+            paymentIntentId: piId,
             productSlug,
           
             // ✅ datos cliente (como los espera el backend nuevo)
@@ -144,8 +144,9 @@ const CheckoutForm = ({ paymentIntentId, productSlug }: CheckoutFormProps) => {
       });
       setLoading(false);
     } else if (paymentIntent && paymentIntent.status === "succeeded") {
-      // Payment succeeded - notify backend for email
-      await notifyPaymentSuccess();
+      // ✅ Payment succeeded - notify backend for email + n8n
+      await notifyPaymentSuccess(paymentIntent.id);
+    
       // Redirect to thank you page
       window.location.href = `${window.location.origin}/thankyou-ei`;
     }
