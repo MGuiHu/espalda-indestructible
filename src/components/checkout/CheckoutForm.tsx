@@ -82,8 +82,23 @@ const CheckoutForm = ({ paymentIntentId, productSlug }: CheckoutFormProps) => {
         body: JSON.stringify({
           paymentIntentId,
           productSlug,
-          customerEmail: formData.email,
+
+           // datos cliente
           nombre: `${formData.firstName} ${formData.lastName}`.trim(),
+          email: formData.email,
+          telefono: formData.phone,
+          empresa: formData.companyName || null,
+        
+          // dirección
+          pais: formData.country,
+          direccion: formData.streetAddress,
+          apartamento: formData.apartment || null,
+          ciudad: formData.city,
+          provincia: formData.province,
+          codigoPostal: formData.postalCode,
+        
+          // otros
+          notas: formData.notes || null,
         }),
       });
     } catch (error) {
