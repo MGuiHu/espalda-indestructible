@@ -76,36 +76,30 @@ const CheckoutForm = ({ paymentIntentId, productSlug }: CheckoutFormProps) => {
   const notifyPaymentSuccess = async (piId: string) => {
     try {
       const API_URL = import.meta.env.VITE_API_URL;
+  
       await fetch(`${API_URL}/api/payment-success`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          body: JSON.stringify({
-            paymentIntentId: piId,
-            productSlug,
-          
-            // ✅ datos cliente (como los espera el backend nuevo)
-            firstName: formData.firstName,
-            lastName: formData.lastName,
-            email: formData.email,
-            phone: formData.phone,
-            companyName: formData.companyName || null,
-          
-            // ✅ dirección (como los espera el backend nuevo)
-            country: formData.country,
-            streetAddress: formData.streetAddress,
-            apartment: formData.apartment || null,
-            city: formData.city,
-            province: formData.province,
-            postalCode: formData.postalCode,
-          
-            // ✅ otros
-            notes: formData.notes || null,
-          }),
+          paymentIntentId: piId,
+          productSlug,
+  
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          companyName: formData.companyName || null,
+          country: formData.country,
+          streetAddress: formData.streetAddress,
+          apartment: formData.apartment || null,
+          city: formData.city,
+          province: formData.province,
+          postalCode: formData.postalCode,
+          phone: formData.phone,
+          email: formData.email,
+          notes: formData.notes || null,
+        }),
       });
     } catch (error) {
       console.error("Error notifying payment success:", error);
-      // Don't block user flow - payment was already successful
     }
   };
 
