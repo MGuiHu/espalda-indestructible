@@ -17,16 +17,13 @@ const ThankYouEvento = () => {
               </div>
 
               {/* Main Message */}
-              <h1 className="text-3xl md:text-4xl font-bold mb-6 text-foreground">
-                ¡Registro Completado con Éxito!
+              <h1 className="text-3xl md:text-4xl font-bold mb-8 text-foreground">
+                Únete al Grupo pinchando en el botón verde
               </h1>
               
               <div className="bg-card border border-border rounded-lg p-8 mb-8">
-                <p className="text-lg text-foreground mb-6">
-                  Gracias por registrarte. Tu inscripción se ha realizado correctamente.
-                </p>
-                <p className="text-foreground mb-8">
-                  Únete a nuestro grupo privado de WhatsApp para recibir actualizaciones exclusivas y conectar con otros miembros.
+                <p className="text-foreground mb-8 font-semibold">
+                  SÓLO si entras al Grupo TENDRÁS acceso a TODOS los ENLACES
                 </p>
                 
                 <Button 
@@ -35,7 +32,7 @@ const ThankYouEvento = () => {
                   asChild
                 >
                   <a 
-                    href="https://chat.whatsapp.com/LwJ64VwJhGqLs3WRxykWbC?mode=wwt" 
+                    href="https://chat.whatsapp.com/F5wgDwv8irTE3l5mGWx9Vn" 
                     target="_blank" 
                     rel="noopener noreferrer"
                   >
