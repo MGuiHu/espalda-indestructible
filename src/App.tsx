@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import Testimonios from "./pages/Testimonios";
 import Pdf from "./pages/Pdf";
+import Pdf2 from "./pages/Pdf2";
 import Equipo from "./pages/Equipo";
 import Blog from "./pages/Blog";
 import AntiinflamatorioHerniaDiscal from "./pages/AntiinflamatorioHerniaDiscal";
@@ -31,8 +32,10 @@ import Programa from "./pages/Programa";
 import Evento from "./pages/Evento";
 import Eapuntate from "./pages/Eapuntate";
 import Eventoads from "./pages/Eventoads";
-import Verifymail from "./pages/Verifymail";
+import Verifymaileventos from "./pages/Verifymaileventos";
+import Verifymailpdf from "./pages/Verifymailpdf";
 import ThankYouEvento from "./pages/ThankYouEvento";
+import ThankYouEapuntate from "./pages/ThankYouEapuntate";
 import ThankYouEi from "./pages/ThankYouEi";
 import NotFound from "./pages/NotFound";
 import AvisoLegal from "./pages/AvisoLegal";
@@ -53,6 +56,7 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/testimonios" element={<Testimonios />} />
           <Route path="/pdf" element={<Pdf />} />
+          <Route path="/pdf2" element={<Pdf2 />} />
           <Route path="/equipo" element={<Equipo />} />
           <Route path="/blog" element={<Blog />} />
           <Route path="/blog/antiinflamatorio-hernia-discal" element={<AntiinflamatorioHerniaDiscal />} />
@@ -78,8 +82,10 @@ const App = () => (
           <Route path="/evento" element={<Evento />} />
           <Route path="/eapuntate" element={<Eapuntate />} />
           <Route path="/eventoads" element={<Eventoads />} />
-          <Route path="/verifymail" element={<Verifymail />} />
+          <Route path="/verifymaileventos" element={<Verifymaileventos />} />
+          <Route path="/verifymailpdf" element={<Verifymailpdf />} />
           <Route path="/thankyou-evento" element={<ThankYouEvento />} />
+          <Route path="/thankyou-eapuntate" element={<ThankYouEapuntate />} />
           <Route path="/thankyou-ei" element={<ThankYouEi />} />
           <Route path="/aviso-legal" element={<AvisoLegal />} />
           <Route path="/politica-cookies" element={<PoliticaCookies />} />
