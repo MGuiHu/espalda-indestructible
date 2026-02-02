@@ -100,37 +100,6 @@ const Verifymailpdf = () => {
                   </li>
                 </ul>
               </div>
-
-              {/* Resend Form */}
-              <div className="bg-card border border-border rounded-lg p-8">
-                <h3 className="text-xl font-bold mb-4 text-center text-foreground">
-                  ¿No te llegó el correo?
-                </h3>
-                <form onSubmit={handleResend} className="space-y-4">
-                  <div>
-                    <label htmlFor="resend-email" className="block text-sm font-medium text-foreground mb-2">
-                      Email
-                    </label>
-                    <Input
-                      id="resend-email"
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="tu@email.com"
-                      className="bg-background border-input"
-                      required
-                    />
-                  </div>
-                  <Button 
-                    type="submit" 
-                    size="lg" 
-                    className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-bold"
-                    disabled={isResending}
-                  >
-                    {isResending ? "REENVIANDO..." : "REENVIAR CONFIRMACIÓN"}
-                  </Button>
-                </form>
-              </div>
             </div>
           </div>
         </section>
