@@ -72,8 +72,6 @@ const allowedOrigins = [
   "http://localhost:5173",
   "http://localhost:4173",
   "http://localhost:8080",
-  "https://espaldaindestructible.com",
-  "https://www.espaldaindestructible.com",
   /\.netlify\.app$/,
 ];
 
@@ -266,10 +264,10 @@ app.post("/api/create-payment-intent", async (req, res) => {
 
 // Custom coupons configuration (fixed discounts with minimum purchase requirements)
 const CUSTOM_COUPONS = {
-  K47NA: { discount: 47, minAmount: 900 },
-  "50K50": { discount: 50, minAmount: 900 },
-  K102NA: { discount: 102, minAmount: 1600 },
-  K202NA: { discount: 202, minAmount: 1600 },
+  "K47NA": { discount: 47, minAmount: 900 },
+  "K102NA": { discount: 102, minAmount: 1600 },
+  "K202NA": { discount: 202, minAmount: 1600 },
+  "K147NA": { discount: 147, minAmount: 1600 },
 };
 
 // Apply Coupon
@@ -287,21 +285,11 @@ app.post("/api/apply-coupon", async (req, res) => {
     // Convert to uppercase for comparison
     const upperCode = couponCode.toUpperCase();
 
-    // Special validation for 200K100 coupon - only valid for 1-ano
-    if (upperCode === "200K100") {
-      if (productSlug !== "1-ano") {
-        return res.json({
-          valid: false,
-          error: "Este cupón solo se puede usar en el plan de 1 año.",
-        });
-      }
-    }
-
     // Check if it's a custom coupon first
     const customCoupon = CUSTOM_COUPONS[upperCode];
     if (customCoupon) {
-      // Special validation for K102NA and K202NA - only valid for 6-meses and 1-ano
-      if (upperCode === "K102NA" || upperCode === "K202NA") {
+      // Special validation for K102NA, K202NA and K147NA - only valid for 6-meses and 1-ano
+      if (upperCode === "K102NA" || upperCode === "K202NA" || upperCode === "K147NA") {
         if (productSlug !== "6-meses" && productSlug !== "1-ano") {
           return res.json({
             valid: false,
@@ -407,28 +395,7 @@ app.post("/api/apply-coupon", async (req, res) => {
 // Payment success notification
 app.post("/api/payment-success", async (req, res) => {
   try {
-    const {
-      paymentIntentId,
-      productSlug,
-
-      // 👇 NUEVO: recibimos todo el formulario (si viene)
-      firstName,
-      lastName,
-      companyName,
-      country,
-      streetAddress,
-      apartment,
-      city,
-      province,
-      postalCode,
-      phone,
-      email,
-      notes,
-
-      // (mantengo compatibilidad con lo anterior)
-      customerEmail,
-      nombre,
-    } = req.body;
+    const { paymentIntentId, productSlug, customerEmail, nombre } = req.body;
 
     if (!paymentIntentId) {
       return res.status(400).json({ success: false, error: "paymentIntentId is required" });
@@ -453,55 +420,6 @@ app.post("/api/payment-success", async (req, res) => {
       "1-ano": "1 año",
     };
 
-    // 👇 NUEVO: preparar valores “finales” para mandar a n8n
-    const finalEmail = email || customerEmail || null;
-    const finalNombre =
-      (firstName || lastName)
-        ? `${firstName || ""} ${lastName || ""}`.trim()
-        : (nombre || null);
-
-    // 🔁 NUEVO: enviar TODO el formulario a n8n (sin romper el flujo si n8n falla)
-    try {
-      await fetch("https://n8n.espaldaindestructible.com/webhook/pagos-web-backend", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-Source": "espalda-backend",
-        },
-        body: JSON.stringify({
-          paymentIntentId,
-          producto: productName,
-          duracion: productLabels[productSlug] || productSlug,
-          productSlug,
-          importePagado: amountPaid,
-          moneda: currency,
-          cuponAplicado: appliedCoupon,
-          fecha: new Date().toISOString(),
-
-          // ✅ Formulario completo (tal cual lo rellena el usuario)
-          formulario: {
-            firstName: firstName || null,
-            lastName: lastName || null,
-            nombreCompleto: finalNombre,
-            companyName: companyName || null,
-            country: country || null,
-            streetAddress: streetAddress || null,
-            apartment: apartment || null,
-            city: city || null,
-            province: province || null,
-            postalCode: postalCode || null,
-            phone: phone || null,
-            email: finalEmail,
-            notes: notes || null,
-          },
-        }),
-      });
-    } catch (err) {
-      console.error("Error sending data to n8n:", err);
-      // no bloqueamos: el pago ya fue correcto
-    }
-
-    // 📧 EMAIL (SE QUEDA COMO ESTABA)
     const subject = "🎉 Nueva compra ESPALDA INDESTRUCTIBLE";
 
     const text = `
@@ -514,10 +432,8 @@ Detalles del pedido:
 - Cupón aplicado: ${appliedCoupon}
 
 Datos del cliente:
-- Nombre: ${finalNombre || "No proporcionado"}
-- Email: ${finalEmail || "No proporcionado"}
-- Teléfono: ${phone || "No proporcionado"}
-
+- Nombre: ${nombre || "No proporcionado"}
+- Email: ${customerEmail || "No proporcionado"}
 
 Payment Intent ID: ${paymentIntentId}
 
@@ -531,22 +447,20 @@ Fecha: ${new Date().toLocaleString("es-ES", { timeZone: "Europe/Madrid" })}
 <head>
   <meta charset="utf-8">
   <style>
-    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; }
+    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
     .container { max-width: 600px; margin: 0 auto; padding: 20px; }
     .header { background: linear-gradient(135deg, #10b981, #059669); color: #fff; padding: 30px 20px; text-align: center; border-radius: 8px 8px 0 0; }
     .header h2 { margin: 0; font-size: 24px; }
     .content { background: #f9f9f9; padding: 25px; border-radius: 0 0 8px 8px; }
     .section { margin-bottom: 20px; }
     .section-title { font-weight: bold; color: #059669; margin-bottom: 10px; font-size: 16px; }
-    .field { display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-bottom: 1px solid #e5e5e5; }
+    .field { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #e5e5e5; }
     .field:last-child { border-bottom: none; }
-    .label { color: #666; flex: 1; }
-    .value { font-weight: 600; color: #333; text-align: right; flex: 1; word-break: break-word; }
+    .label { color: #666; }
+    .value { font-weight: 600; color: #333; }
     .amount { font-size: 24px; color: #059669; font-weight: bold; text-align: center; padding: 20px; background: #ecfdf5; border-radius: 8px; margin-bottom: 20px; }
     .footer { margin-top: 20px; font-size: 12px; color: #888; text-align: center; }
     .payment-id { font-family: monospace; font-size: 11px; color: #999; word-break: break-all; }
-    a { color: #059669; text-decoration: none; }
-    a:hover { text-decoration: underline; }
   </style>
 </head>
 <body>
@@ -555,10 +469,9 @@ Fecha: ${new Date().toLocaleString("es-ES", { timeZone: "Europe/Madrid" })}
       <h2>🎉 ¡Nueva Compra!</h2>
       <p style="margin: 5px 0 0 0; opacity: 0.9;">ESPALDA INDESTRUCTIBLE</p>
     </div>
-
     <div class="content">
       <div class="amount">${amountPaid} ${currency}</div>
-
+      
       <div class="section">
         <div class="section-title">📦 Producto</div>
         <div class="field">
@@ -574,30 +487,19 @@ Fecha: ${new Date().toLocaleString("es-ES", { timeZone: "Europe/Madrid" })}
           <span class="value">${appliedCoupon}</span>
         </div>
       </div>
-
+      
       <div class="section">
         <div class="section-title">👤 Cliente</div>
         <div class="field">
           <span class="label">Nombre:</span>
-          <span class="value">${finalNombre || "No proporcionado"}</span>
+          <span class="value">${nombre || "No proporcionado"}</span>
         </div>
         <div class="field">
           <span class="label">Email:</span>
-          <span class="value">
-            ${
-              finalEmail
-                ? `<a href="mailto:${finalEmail}">${finalEmail}</a>`
-                : "No proporcionado"
-            }
-          </span>
-        </div>
-        <div class="field">
-          <span class="label">Teléfono:</span>
-          <span class="value">${phone || "No proporcionado"}</span>
+          <span class="value">${customerEmail ? `<a href="mailto:${customerEmail}">${customerEmail}</a>` : "No proporcionado"}</span>
         </div>
       </div>
     </div>
-
     <div class="footer">
       <p class="payment-id">Payment Intent: ${paymentIntentId}</p>
       <p>Fecha: ${new Date().toLocaleString("es-ES", { timeZone: "Europe/Madrid" })}</p>
@@ -605,7 +507,7 @@ Fecha: ${new Date().toLocaleString("es-ES", { timeZone: "Europe/Madrid" })}
   </div>
 </body>
 </html>
-`.trim();
+    `.trim();
 
     // Send email notification
     await sendNotificationEmail(subject, text, html);
