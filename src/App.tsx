@@ -59,6 +59,16 @@ const MetaPixelPageView = () => {
   return null;
 };
 
+const TikTokPageView = () => {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    if (typeof window !== 'undefined' && (window as any).ttq) {
+      (window as any).ttq.page();
+    }
+  }, [pathname]);
+  return null;
+};
+
 const ConditionalWhatsApp = () => {
   const { pathname } = useLocation();
   const showOnRoutes = ["/", "/programa", "/testimonios", "/equipo", "/contacto"];
@@ -73,6 +83,8 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <ConditionalWhatsApp />
+        <MetaPixelPageView />
+        <TikTokPageView />
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/testimonios" element={<Testimonios />} />
@@ -122,4 +134,4 @@ const App = () => (
   </QueryClientProvider>
 );
 
-export default App; App;
+export default App;
