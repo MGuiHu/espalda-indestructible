@@ -32,7 +32,7 @@ const ThankYouEventoads = () => {
                   asChild
                 >
                   <a 
-                    href="https://chat.whatsapp.com/F5wgDwv8irTE3l5mGWx9Vn" 
+                    href=" https://chat.whatsapp.com/KU9cBmQPesj6EROWBgeyAB" 
                     target="_blank" 
                     rel="noopener noreferrer"
                   >
