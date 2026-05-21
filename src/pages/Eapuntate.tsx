@@ -43,7 +43,7 @@ const Eapuntate = () => {
                     frameBorder="0"
                     scrolling="no"
                     width="100%"
-                    className="ipz-iframe min-h-[400px]"
+                    className="ipz-iframe min-h-[560px]"
                     title="Formulario de registro"
                   />
                 </div>
